@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChemSquid - Periodic Table Survival Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="screen active">
+        <div class="splash-content">
+            <h1 class="game-title">CHEMSQUID</h1>
+            <p class="tagline">ตอบคำถามตารางธาตุผิด.. ถูกคัดออกทันที!</p>
+            <div class="player-setup">
+                <input type="text" id="player-name" placeholder="ใส่หมายเลขผู้เล่น" maxlength="3">
+                <div><button id="start-game-btn" class="squid-btn">เริ่มเกม</button></div>
+            </div>
+            <div class="sound-controls">
+                <button id="sound-toggle" class="sound-btn">🔊</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <div class="player-info">
+                <span id="player-display">ผู้เล่น 001</span>
+                <span id="score">คะแนน: 0</span>
+            </div>
+            <div class="round-info">
+                <span id="round-display">รอบที่ 1</span>
+                <div id="timer-container" class="hidden">
+                    <div id="timer-bar"></div>
+                    <span id="timer-text">10</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-content">
+            <div id="question-container">
+                <h2 id="question-text">กำลังโหลดคำถาม...</h2>
+                <div id="answer-buttons" class="answer-grid">
+                    <!-- Answer buttons will be generated here -->
+                </div>
+            </div>
+
+            <div id="round-specific-ui">
+                <!-- Round-specific UI elements -->
+            </div>
+        </div>
+
+        <div class="game-footer">
+            <button id="fullscreen-btn" class="control-btn">⛶</button>
+            <button id="pause-btn" class="control-btn">⏸</button>
+        </div>
+    </div>
+
+    <!-- Elimination Screen -->
+    <div id="elimination-screen" class="screen">
+        <div class="elimination-content">
+            <h1 class="elimination-title">ผู้เล่นถูกคัดออก</h1>
+            <div class="elimination-animation">
+                <div class="player-avatar eliminated">💀</div>
+            </div>
+            <p class="elimination-text">ตอบคำถามตารางธาตุผิด... ถูกคัดออกทันที!</p>
+            <button id="restart-btn" class="squid-btn">เล่นอีกครั้ง</button>
+        </div>
+    </div>
+
+    <!-- Victory Screen -->
+    <div id="victory-screen" class="screen">
+        <div class="victory-content">
+            <h1 class="victory-title">ผู้รอดชีวิต</h1>
+            <div class="victory-animation">
+                <div class="player-avatar winner">🏆</div>
+            </div>
+            <p class="victory-text">ยินดีด้วย! คุณรอดชีวิตจากทุกรอบแล้ว!</p>
+            <div class="final-score">
+                <span>คะแนนสุดท้าย: <span id="final-score">0</span></span>
+            </div>
+            <button id="play-again-btn" class="squid-btn">เล่นอีกครั้ง</button>
+        </div>
+    </div>
+
+    <!-- Round 2 Sugar Honeycomb UI -->
+    <div id="container-ui" class="round-ui hidden">
+        <h2 class="round-title">Sugar Honeycomb Round</h2>
+        <p class="round-instruction">Choose a shape. Each shape contains a chemistry question!</p>
+        
+        <!-- Symbols Grid Container -->
+        <div id="honeycomb-symbols" class="honeycomb-grid">
+            <div class="honeycomb-symbol" data-symbol="star">
+                <div class="symbol-icon">⭐</div>
+                <div class="symbol-name">Star</div>
+            </div>
+            
+            <div class="honeycomb-symbol" data-symbol="triangle">
+                <div class="symbol-icon">▲</div>
+                <div class="symbol-name">Triangle</div>
+            </div>
+            
+            <div class="honeycomb-symbol" data-symbol="circle">
+                <div class="symbol-icon">●</div>
+                <div class="symbol-name">Circle</div>
+            </div>
+            
+            <div class="honeycomb-symbol" data-symbol="umbrella">
+                <div class="symbol-icon">☂</div>
+                <div class="symbol-name">Umbrella</div>
+            </div>
+        </div>
+        
+        <!-- Question Container -->
+        <div id="honeycomb-question" class="hidden">
+            <div class="success-message hidden">
+                <span>ถูกต้อง! Correct!</span>
+            </div>
+            <div class="question-content">
+                <h3 id="selected-symbol-display"></h3>
+                <div class="honeycomb-question-container">
+                    <p id="honeycomb-question-text"></p>
+                    <div class="honeycomb-answer-options">
+                        <button class="honeycomb-answer-btn"></button>
+                        <button class="honeycomb-answer-btn"></button>
+                        <button class="honeycomb-answer-btn"></button>
+                        <button class="honeycomb-answer-btn"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Round 3 Bridge UI -->
+    <div id="bridge-ui" class="round-ui hidden">
+        <div class="bridge-container">
+            <div class="bridge-path">
+                <div class="glass-panel" data-choice="A">A</div>
+                <div class="glass-panel" data-choice="B">B</div>
+            </div>
+        </div>
+        <p class="bridge-instruction">เลือกเส้นทางอย่างระมัดระวัง...</p>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="background-music" loop>
+        <source src="audio/background.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="correct-sound">
+        <source src="audio/correct.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="wrong-sound">
+        <source src="audio/wrong.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="eliminated-sound">
+        <source src="audio/eliminated.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="timer-tick">
+        <source src="audio/tick.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
