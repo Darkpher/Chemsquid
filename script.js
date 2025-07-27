@@ -16,7 +16,7 @@ class ChemSquidGame {
         this.bindEvents();
         this.loadHighScores();
     }
-
+    
     initializeElements() {
         // Screen elements
         this.splashScreen = document.getElementById('splash-screen');
