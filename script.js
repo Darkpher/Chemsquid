@@ -230,11 +230,11 @@ class ChemSquidGame {
         const answerButtons = document.querySelector('#honeycomb-question .answer-buttons');
         if (answerButtons) {
             answerButtons.innerHTML = '';
-            
-            this.currentQuestion.options.forEach((option, idx) => {
-                const button = document.createElement('button');
+        
+        this.currentQuestion.options.forEach((option, idx) => {
+            const button = document.createElement('button');
                 button.className = 'honeycomb-answer-btn answer-btn';
-                button.textContent = `${String.fromCharCode(65 + idx)}. ${option}`;
+            button.textContent = `${String.fromCharCode(65 + idx)}. ${option}`;
                 button.dataset.answer = idx;
                 
                 // Add proper click handler with event parameter
@@ -317,12 +317,12 @@ class ChemSquidGame {
         
         // Check if answer is correct
         if (selectedAnswer === this.currentQuestion.correct) {
-            panel.classList.add('correct');
-            this.handleCorrectAnswer();
-        } else {
-            panel.classList.add('wrong');
-            this.handleWrongAnswer();
-        }
+                panel.classList.add('correct');
+                this.handleCorrectAnswer();
+            } else {
+                panel.classList.add('wrong');
+                this.handleWrongAnswer();
+    }
     }
 
     getRoundQuestions() {
@@ -371,17 +371,17 @@ class ChemSquidGame {
             // Show answer buttons for other rounds
             this.answerButtons.style.display = 'grid';
             this.hideGlassBridge();
+        
+        // Create answer buttons
+        this.currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.className = 'answer-btn';
+            button.textContent = option;
+            button.dataset.answer = index;
             
-            // Create answer buttons
-            this.currentQuestion.options.forEach((option, index) => {
-                const button = document.createElement('button');
-                button.className = 'answer-btn';
-                button.textContent = option;
-                button.dataset.answer = index;
-                
-                button.addEventListener('click', (e) => this.handleAnswer(e));
-                this.answerButtons.appendChild(button);
-            });
+            button.addEventListener('click', (e) => this.handleAnswer(e));
+            this.answerButtons.appendChild(button);
+        });
         }
         
         // Show timer for rounds that need it
@@ -456,9 +456,9 @@ class ChemSquidGame {
         // Normal round handling
         if (selectedAnswer === this.currentQuestion.correct) {
             this.handleCorrectAnswer(button);
-        } else {
+            } else {
             this.handleWrongAnswer(button);
-        }
+            }
     }
 
     handleHoneycombAnswer(selectedAnswer, event = null) {
@@ -474,10 +474,10 @@ class ChemSquidGame {
             this.score += 10;
             this.updateScore();
             
-            if (this.soundEnabled) {
-                this.playCorrectSound();
-            }
-            
+        if (this.soundEnabled) {
+            this.playCorrectSound();
+        }
+        
             // Update progress
             this.questionsAnswered++;
             
@@ -505,7 +505,7 @@ class ChemSquidGame {
         // Show success message
         const successMessage = document.querySelector('#honeycomb-question .success-message');
         if (successMessage) {
-            successMessage.classList.remove('hidden');
+        successMessage.classList.remove('hidden');
             console.log('Showed success message');
         }
         
@@ -513,7 +513,7 @@ class ChemSquidGame {
         setTimeout(() => {
             // Hide success message and question container
             if (successMessage) {
-                successMessage.classList.add('hidden');
+            successMessage.classList.add('hidden');
             }
             document.getElementById('honeycomb-question').classList.add('hidden');
             
@@ -587,7 +587,7 @@ class ChemSquidGame {
     handleWrongAnswer(button = null) {
         if (button) {
             button.classList.add('wrong');
-        }
+            }
         
         if (this.soundEnabled) {
             this.playWrongSound();
