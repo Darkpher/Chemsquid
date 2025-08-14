@@ -1,0 +1,261 @@
+/* Round 2: Sugar Honeycomb Styles */
+
+/* Round Container */
+#container-ui {
+    min-height: calc(100vh - 100px);
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    width: 100%;
+}
+
+#container-ui.active, 
+#container-ui:not(.hidden) {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Round Header */
+.round-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    position: relative;
+    z-index: 10;
+}
+
+.round-title {
+    color: #ff6b35;
+    font-size: 28px;
+    margin: 0 0 10px 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.round-instruction {
+    color: #ffffff;
+    font-size: 16px;
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* Honeycomb Symbols Grid */
+#honeycomb-symbols {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    max-width: 500px;
+    width: 100%;
+    margin: 20px auto;
+    padding: 20px;
+    position: relative;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+}
+
+#honeycomb-symbols.hidden {
+    display: none !important;
+}
+
+.honeycomb-symbol {
+    width: 200px;
+    height: 150px;
+    background: linear-gradient(145deg, #ffb347, #ff8c42);
+    border: 3px solid #fff;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(255,140,66,0.3);
+}
+
+.honeycomb-symbol:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 35px rgba(255,140,66,0.5);
+    background: linear-gradient(145deg, #ffc04d, #ff9642);
+}
+
+.honeycomb-symbol.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+    filter: grayscale(100%);
+    transform: scale(0.9);
+}
+
+.honeycomb-symbol:not(.disabled) {
+    pointer-events: auto;
+    cursor: pointer;
+    opacity: 1;
+    filter: none;
+}
+
+.symbol-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+    color: #fff;
+}
+
+.symbol-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Question Container */
+.question-container {
+    max-width: 700px;
+    margin: 20px auto;
+    background: rgba(0,0,0,0.95);
+    border-radius: 15px;
+    padding: 30px;
+    border: 2px solid #ff6b35;
+    position: relative;
+    z-index: 20;
+}
+
+#honeycomb-question {
+    position: relative;
+    z-index: 100;
+}
+
+#honeycomb-question.hidden {
+    display: none !important;
+}
+
+.selected-symbol-display {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ff6b35;
+    font-size: 24px;
+}
+
+.question-box {
+    text-align: center;
+}
+
+.question-text {
+    color: #fff;
+    font-size: 20px;
+    margin-bottom: 25px;
+    line-height: 1.4;
+}
+
+/* Answer Buttons */
+.answer-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.answer-btn {
+    padding: 12px 20px;
+    background: linear-gradient(45deg, #ff1493, #ff6b35);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 50px;
+}
+
+.answer-btn:hover {
+    background: linear-gradient(45deg, #ff3da1, #ff7d42);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,20,147,0.4);
+}
+
+.answer-btn.correct {
+    background: linear-gradient(45deg, #00ff00, #32cd32) !important;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0,255,0,0.6);
+}
+
+.answer-btn.wrong {
+    background: linear-gradient(45deg, #ff0000, #dc143c) !important;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(255,0,0,0.6);
+}
+
+/* Success Message */
+.success-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,255,0,0.9);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 10px;
+    font-size: 24px;
+    z-index: 1000;
+    text-align: center;
+}
+
+/* Hide elements */
+.hidden {
+    display: none !important;
+}
+
+/* Hide main question container during honeycomb round */
+#container-ui:not(.hidden) ~ #question-container,
+#container-ui:not(.hidden) ~ #game-content {
+    display: none !important;
+}
+
+/* Ensure honeycomb question container is properly positioned */
+#honeycomb-question {
+    position: relative;
+    z-index: 100;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .symbols-container {
+        gap: 15px;
+        max-width: 350px;
+    }
+    
+    .honeycomb-symbol {
+        width: 150px;
+        height: 120px;
+    }
+    
+    .symbol-icon {
+        font-size: 36px;
+    }
+    
+    .symbol-label {
+        font-size: 12px;
+    }
+    
+    .round-title {
+        font-size: 24px;
+    }
+    
+    .question-container {
+        margin: 10px;
+        padding: 20px;
+    }
+    
+    .answer-buttons {
+        grid-template-columns: 1fr;
+    }
+}

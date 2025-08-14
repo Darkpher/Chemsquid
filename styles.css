@@ -126,19 +126,18 @@ body::before {
 .squid-btn {
     background: linear-gradient(45deg, #FF1493, #DC143C);
     border: none;
-    padding: 15px 40px;
-    font-size: 18px;
-    font-weight: bold;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    font-weight: 700;
     font-family: 'Orbitron', 'Arial', sans-serif;
     color: #ffffff;
-    border-radius: 25px;
+    border-radius: 50px;
     cursor: pointer;
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 2px;
     box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
     margin-top: 10px;
-    margin: 0;
 }
 
 .squid-btn:hover {
@@ -273,6 +272,8 @@ body::before {
 #question-container {
     text-align: center;
     margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
 }
 
 #question-text {
@@ -363,48 +364,166 @@ body::before {
 .bridge-container {
     margin: 30px auto;
     max-width: 400px;
+    position: relative;
+    z-index: 5;
+}
+
+/* Ensure glass bridge appears below answer buttons */
+#question-container #bridge-ui {
+    margin-top: 20px;
+    order: 2;
+}
+
+#question-container .answer-grid {
+    order: 1;
 }
 
 .bridge-path {
     display: flex;
     gap: 20px;
     justify-content: center;
+    position: relative;
 }
 
 .glass-panel {
     width: 120px;
     height: 120px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 3px solid #FF1493;
-    border-radius: 10px;
+    background: linear-gradient(135deg, 
+        rgba(173, 216, 230, 0.3) 0%,
+        rgba(135, 206, 250, 0.4) 50%,
+        rgba(173, 216, 230, 0.3) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+    box-shadow: 
+        0 8px 32px rgba(31, 38, 135, 0.37),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.glass-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.4), 
+        transparent);
+    transition: left 0.6s ease;
+}
+
+.glass-panel:hover::before {
+    left: 100%;
 }
 
 .glass-panel:hover {
-    background: rgba(255, 20, 147, 0.2);
-    transform: translateY(-5px);
+    background: linear-gradient(135deg, 
+        rgba(135, 206, 250, 0.5) 0%,
+        rgba(173, 216, 230, 0.6) 50%,
+        rgba(135, 206, 250, 0.5) 100%);
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 
+        0 12px 40px rgba(31, 38, 135, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.glass-reflection {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    height: 30%;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.4) 0%,
+        rgba(255, 255, 255, 0.1) 100%);
+    border-radius: 8px 8px 0 0;
+    pointer-events: none;
+}
+
+.glass-content {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    font-weight: 800;
+    font-size: 1.2rem;
+    text-align: center;
+    line-height: 1.2;
+    word-wrap: break-word;
+    max-width: 90%;
 }
 
 .glass-panel.correct {
-    background: rgba(0, 255, 0, 0.3);
-    border-color: #00FF00;
+    background: linear-gradient(135deg, 
+        rgba(0, 255, 0, 0.3) 0%,
+        rgba(50, 205, 50, 0.4) 50%,
+        rgba(0, 255, 0, 0.3) 100%);
+    border-color: rgba(0, 255, 0, 0.8);
+    box-shadow: 
+        0 8px 32px rgba(0, 255, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    animation: glassSuccess 0.6s ease-out;
 }
 
 .glass-panel.wrong {
-    background: rgba(220, 20, 60, 0.3);
-    border-color: #DC143C;
-    animation: glassBreak 0.5s ease-in-out;
+    background: linear-gradient(135deg, 
+        rgba(220, 20, 60, 0.4) 0%,
+        rgba(255, 0, 0, 0.5) 50%,
+        rgba(220, 20, 60, 0.4) 100%);
+    border-color: rgba(220, 20, 60, 0.8);
+    box-shadow: 
+        0 8px 32px rgba(220, 20, 60, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    animation: glassBreak 0.8s ease-in-out;
 }
 
 @keyframes glassBreak {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1) rotate(5deg); }
+    0% { 
+        transform: scale(1) rotate(0deg); 
+        opacity: 1;
+    }
+    25% { 
+        transform: scale(1.1) rotate(2deg); 
+        opacity: 0.9;
+    }
+    50% { 
+        transform: scale(1.2) rotate(-3deg); 
+        opacity: 0.7;
+    }
+    75% { 
+        transform: scale(0.8) rotate(5deg); 
+        opacity: 0.5;
+    }
+    100% { 
+        transform: scale(0.3) rotate(15deg); 
+        opacity: 0;
+    }
+}
+
+@keyframes glassSuccess {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.bridge-instruction {
+    text-align: center;
+    color: #ffffff;
+    font-size: 1.1rem;
+    margin-top: 20px;
+    opacity: 0.9;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Game Footer */
@@ -576,6 +695,15 @@ body::before {
         width: 100px;
         height: 100px;
         font-size: 1.5rem;
+    }
+    
+    .glass-content {
+        font-size: 1rem;
+    }
+    
+    .bridge-instruction {
+        font-size: 1rem;
+        margin-top: 15px;
     }
     
     .game-footer {

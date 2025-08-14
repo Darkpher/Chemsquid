@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChemSquid - Periodic Table Survival Game</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="honeycomb.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Kanit:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -45,6 +46,23 @@
                 <h2 id="question-text">กำลังโหลดคำถาม...</h2>
                 <div id="answer-buttons" class="answer-grid">
                     <!-- Answer buttons will be generated here -->
+                </div>
+                
+                <!-- Glass Bridge Container (only visible in Round 3) -->
+                <div id="bridge-ui" class="round-ui hidden">
+                    <div class="bridge-container">
+                        <div class="bridge-path">
+                            <div class="glass-panel" data-answer="0">
+                                <div class="glass-reflection"></div>
+                                <div class="glass-content">Answer 1</div>
+                            </div>
+                            <div class="glass-panel" data-answer="1">
+                                <div class="glass-reflection"></div>
+                                <div class="glass-content">Answer 2</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="bridge-instruction">เลือกเส้นทางอย่างระมัดระวัง...</p>
                 </div>
             </div>
 
@@ -88,62 +106,55 @@
 
     <!-- Round 2 Sugar Honeycomb UI -->
     <div id="container-ui" class="round-ui hidden">
-        <h2 class="round-title">Sugar Honeycomb Round</h2>
-        <p class="round-instruction">Choose a shape. Each shape contains a chemistry question!</p>
+        <div class="round-header">
+            <h2 class="round-title">Round 2: Sugar Honeycomb</h2>
+            <p class="round-instruction">Choose a symbol to reveal a chemistry question!</p>
+        </div>
         
         <!-- Symbols Grid Container -->
-        <div id="honeycomb-symbols" class="honeycomb-grid">
+        <div id="honeycomb-symbols" class="symbols-container">
             <div class="honeycomb-symbol" data-symbol="star">
                 <div class="symbol-icon">⭐</div>
-                <div class="symbol-name">Star</div>
+                <div class="symbol-label">STAR</div>
             </div>
             
             <div class="honeycomb-symbol" data-symbol="triangle">
                 <div class="symbol-icon">▲</div>
-                <div class="symbol-name">Triangle</div>
+                <div class="symbol-label">TRIANGLE</div>
             </div>
             
             <div class="honeycomb-symbol" data-symbol="circle">
                 <div class="symbol-icon">●</div>
-                <div class="symbol-name">Circle</div>
+                <div class="symbol-label">CIRCLE</div>
             </div>
             
             <div class="honeycomb-symbol" data-symbol="umbrella">
                 <div class="symbol-icon">☂</div>
-                <div class="symbol-name">Umbrella</div>
+                <div class="symbol-label">UMBRELLA</div>
             </div>
         </div>
         
         <!-- Question Container -->
-        <div id="honeycomb-question" class="hidden">
+        <div id="honeycomb-question" class="question-container hidden">
+            <div class="selected-symbol-display">
+                <h3 id="selected-symbol-display"></h3>
+            </div>
+            <div class="question-box">
+                <p id="honeycomb-question-text" class="question-text"></p>
+                <div class="answer-buttons">
+                    <button class="honeycomb-answer-btn answer-btn"></button>
+                    <button class="honeycomb-answer-btn answer-btn"></button>
+                    <button class="honeycomb-answer-btn answer-btn"></button>
+                    <button class="honeycomb-answer-btn answer-btn"></button>
+                </div>
+            </div>
             <div class="success-message hidden">
                 <span>ถูกต้อง! Correct!</span>
-            </div>
-            <div class="question-content">
-                <h3 id="selected-symbol-display"></h3>
-                <div class="honeycomb-question-container">
-                    <p id="honeycomb-question-text"></p>
-                    <div class="honeycomb-answer-options">
-                        <button class="honeycomb-answer-btn"></button>
-                        <button class="honeycomb-answer-btn"></button>
-                        <button class="honeycomb-answer-btn"></button>
-                        <button class="honeycomb-answer-btn"></button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- Round 3 Bridge UI -->
-    <div id="bridge-ui" class="round-ui hidden">
-        <div class="bridge-container">
-            <div class="bridge-path">
-                <div class="glass-panel" data-choice="A">A</div>
-                <div class="glass-panel" data-choice="B">B</div>
-            </div>
-        </div>
-        <p class="bridge-instruction">เลือกเส้นทางอย่างระมัดระวัง...</p>
-    </div>
+
 
     <!-- Audio Elements -->
     <audio id="background-music" loop>

@@ -1,16 +1,19 @@
-// ChemSquid Game Logic
 class ChemSquidGame {
     constructor() {
         this.currentRound = 1;
         this.score = 0;
         this.playerName = '';
         this.soundEnabled = true;
-        this.gameState = 'splash'; // splash, playing, eliminated, victory
+        this.gameState = 'splash';
         this.timer = null;
         this.timeLeft = 0;
         this.currentQuestion = null;
         this.usedQuestions = new Set();
         this.roundQuestions = [];
+        
+        // Honeycomb specific properties
+        this.availableSymbols = [];
+        this.currentSymbol = null;
         
         this.initializeElements();
         this.bindEvents();
@@ -97,12 +100,17 @@ class ChemSquidGame {
 
     startRound() {
         this.roundDisplay.textContent = `Round ${this.currentRound}`;
+        
+        // Clear used questions for each new round to ensure consistent question counts
+        this.usedQuestions.clear();
+        
         this.roundQuestions = this.getRoundQuestions();
         
         // Initialize round-specific properties
         if (this.currentRound === 2) {
             this.availableSymbols = ['star', 'triangle', 'circle', 'umbrella'];
             this.questionsAnswered = 0;
+            this.currentSymbol = null;
         }
         
         // Show round-specific UI
@@ -115,22 +123,27 @@ class ChemSquidGame {
     }
 
     showRoundUI() {
-        // Hide all round-specific UI
-        this.containerUI.classList.add('hidden');
-        this.bridgeUI.classList.add('hidden');
+        // Hide all round-specific UI first
+        const roundUIs = document.querySelectorAll('.round-ui');
+        roundUIs.forEach(ui => ui.classList.add('hidden'));
         
-        // Reset question display
+        // Reset any existing question displays
         document.getElementById('honeycomb-question')?.classList.add('hidden');
         
         // Show appropriate UI for current round
         switch (this.currentRound) {
             case 2:
+                // Show honeycomb round
                 this.containerUI.classList.remove('hidden');
-                document.getElementById('honeycomb-symbols')?.classList.remove('hidden');
+                const symbolsContainer = document.getElementById('honeycomb-symbols');
+                if (symbolsContainer) {
+                    symbolsContainer.classList.remove('hidden');
+                    symbolsContainer.style.display = 'grid';
+                }
                 this.setupContainerGame();
                 break;
             case 3:
-                this.bridgeUI.classList.remove('hidden');
+                // Glass bridge will be shown when questions are displayed
                 this.setupBridgeGame();
                 break;
         }
@@ -139,40 +152,69 @@ class ChemSquidGame {
     setupContainerGame() {
         // Show the honeycomb UI but hide questions
         this.containerUI.classList.remove('hidden');
-        document.getElementById('honeycomb-question').classList.add('hidden');
+        const honeycombQuestion = document.getElementById('honeycomb-question');
+        honeycombQuestion.classList.add('hidden');
         
-        // Show honeycomb grid
-        const honeycombGrid = document.querySelector('.honeycomb-grid');
-        honeycombGrid.classList.remove('hidden');
+        // Show honeycomb symbols grid
+        const honeycombSymbols = document.getElementById('honeycomb-symbols');
+        if (honeycombSymbols) {
+            honeycombSymbols.classList.remove('hidden');
+            console.log('Setup: Showed honeycomb symbols');
+        }
         
-        // Setup honeycomb symbols
+        // Reset all symbols to enabled state
         const symbols = document.querySelectorAll('.honeycomb-symbol');
         symbols.forEach(symbol => {
             symbol.classList.remove('disabled');
-            symbol.onclick = () => this.handleHoneycombSymbolClick(symbol.dataset.symbol);
         });
         
-        // Reset lastClickedSymbol
-        this.lastClickedSymbol = null;
+        // Remove all existing event listeners by cloning
+        symbols.forEach(symbol => {
+            const newSymbol = symbol.cloneNode(true);
+            symbol.parentNode.replaceChild(newSymbol, symbol);
+        });
+        
+        // Re-query and add new event listeners
+        const freshSymbols = document.querySelectorAll('.honeycomb-symbol');
+        freshSymbols.forEach(symbol => {
+            symbol.addEventListener('click', () => {
+                console.log('Symbol clicked:', symbol.dataset.symbol);
+                this.handleHoneycombSymbolClick(symbol.dataset.symbol);
+            });
+        });
+        
+        // Reset current symbol
+        this.currentSymbol = null;
+        console.log('Found symbols:', freshSymbols.length);
     }
     
     handleHoneycombSymbolClick(symbol) {
         if (!symbol) return;
         
-        // Hide all honeycomb symbols and show question
-        const honeycombGrid = document.querySelector('.honeycomb-grid');
-        honeycombGrid.classList.add('hidden');
+        console.log('Handling honeycomb symbol click:', symbol);
+        
+        // Store the current symbol
+        this.currentSymbol = symbol;
+        
+        // COMPLETELY HIDE honeycomb symbols grid
+        const honeycombSymbols = document.getElementById('honeycomb-symbols');
+        if (honeycombSymbols) {
+            honeycombSymbols.classList.add('hidden');
+            console.log('Hidden honeycomb symbols');
+        }
         
         // Show the question container
         const honeycombQuestion = document.getElementById('honeycomb-question');
         honeycombQuestion.classList.remove('hidden');
+        console.log('Showed honeycomb question');
         
         // Get the next question and display it
         this.currentQuestion = this.roundQuestions.shift();
+        if (!this.currentQuestion) {
+            console.error('No more questions available!');
+            return;
+        }
         this.displayHoneycombQuestion(symbol);
-        
-        // Store the clicked symbol to disable it after answering
-        this.lastClickedSymbol = symbol;
     }
     
     displayHoneycombQuestion(symbol) {
@@ -184,17 +226,32 @@ class ChemSquidGame {
         selectedSymbolDisplay.textContent = `${symbolIcons[symbol]} ${symbol.charAt(0).toUpperCase() + symbol.slice(1)}`;
         honeycombQuestionText.textContent = this.currentQuestion.question;
         
-        // Set up answer buttons
-        const answerContainer = document.querySelector('.honeycomb-answer-options');
-        answerContainer.innerHTML = '';
+        // Set up answer buttons - use the correct container
+        const answerButtons = document.querySelector('#honeycomb-question .answer-buttons');
+        if (answerButtons) {
+            answerButtons.innerHTML = '';
+            
+            this.currentQuestion.options.forEach((option, idx) => {
+                const button = document.createElement('button');
+                button.className = 'honeycomb-answer-btn answer-btn';
+                button.textContent = `${String.fromCharCode(65 + idx)}. ${option}`;
+                button.dataset.answer = idx;
+                
+                // Add proper click handler with event parameter
+                button.addEventListener('click', (event) => {
+                    console.log('Answer button clicked:', idx, 'for question:', this.currentQuestion.question);
+                    this.handleHoneycombAnswer(idx, event);
+                });
+                
+                answerButtons.appendChild(button);
+            });
+            
+            console.log('Created', this.currentQuestion.options.length, 'answer buttons');
+        } else {
+            console.error('Answer buttons container not found!');
+        }
         
-        this.currentQuestion.options.forEach((option, idx) => {
-            const button = document.createElement('button');
-            button.className = 'honeycomb-answer-btn';
-            button.textContent = `${String.fromCharCode(65 + idx)}. ${option}`;
-            button.onclick = () => this.handleHoneycombAnswer(idx);
-            answerContainer.appendChild(button);
-        });
+        console.log('Displayed question for symbol:', symbol);
     }
 
     setupBridgeGame() {
@@ -202,6 +259,39 @@ class ChemSquidGame {
         panels.forEach(panel => {
             panel.classList.remove('correct', 'wrong');
             panel.addEventListener('click', (e) => this.handleBridgeChoice(e));
+        });
+    }
+    
+    showGlassBridge() {
+        const bridgeUI = document.getElementById('bridge-ui');
+        if (bridgeUI) {
+            bridgeUI.classList.remove('hidden');
+            console.log('Glass bridge shown for Round 3');
+        }
+    }
+    
+    hideGlassBridge() {
+        const bridgeUI = document.getElementById('bridge-ui');
+        if (bridgeUI) {
+            bridgeUI.classList.add('hidden');
+            console.log('Glass bridge hidden');
+        }
+    }
+    
+    updateGlassBridgeAnswers() {
+        if (!this.currentQuestion) return;
+        
+        const glassPanels = document.querySelectorAll('.glass-panel');
+        glassPanels.forEach((panel, index) => {
+            // Reset panel state
+            panel.classList.remove('correct', 'wrong');
+            
+            const glassContent = panel.querySelector('.glass-content');
+            if (glassContent && this.currentQuestion.options[index]) {
+                glassContent.textContent = this.currentQuestion.options[index];
+                panel.dataset.answer = index;
+                console.log(`Updated glass panel ${index} with: ${this.currentQuestion.options[index]}`);
+            }
         });
     }
 
@@ -215,19 +305,23 @@ class ChemSquidGame {
 
     handleBridgeChoice(event) {
         const panel = event.target;
-        const choice = panel.dataset.choice;
+        const selectedAnswer = parseInt(panel.dataset.answer);
         
-        // Get current question and check if choice is correct
-        if (this.currentQuestion) {
-            const isCorrect = choice === this.currentQuestion.options[this.currentQuestion.correct];
-            
-            if (isCorrect) {
-                panel.classList.add('correct');
-                this.handleCorrectAnswer();
-            } else {
-                panel.classList.add('wrong');
-                this.handleWrongAnswer();
-            }
+        console.log('Glass bridge choice:', selectedAnswer, 'Correct:', this.currentQuestion.correct);
+        
+        // Clear timer if it exists (for consistency)
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        
+        // Check if answer is correct
+        if (selectedAnswer === this.currentQuestion.correct) {
+            panel.classList.add('correct');
+            this.handleCorrectAnswer();
+        } else {
+            panel.classList.add('wrong');
+            this.handleWrongAnswer();
         }
     }
 
@@ -253,7 +347,7 @@ class ChemSquidGame {
             this.completeRound();
             return;
         }
-        
+
         this.currentQuestion = this.roundQuestions.shift();
         this.usedQuestions.add(this.currentQuestion.question);
         
@@ -267,16 +361,28 @@ class ChemSquidGame {
         // Clear previous answer buttons
         this.answerButtons.innerHTML = '';
         
-        // Create answer buttons
-        this.currentQuestion.options.forEach((option, index) => {
-            const button = document.createElement('button');
-            button.className = 'answer-btn';
-            button.textContent = option;
-            button.dataset.answer = index;
+        // Special handling for Round 3 (Glass Bridge)
+        if (this.currentRound === 3) {
+            // Hide answer buttons for Round 3
+            this.answerButtons.style.display = 'none';
+            this.showGlassBridge();
+            this.updateGlassBridgeAnswers();
+        } else {
+            // Show answer buttons for other rounds
+            this.answerButtons.style.display = 'grid';
+            this.hideGlassBridge();
             
-            button.addEventListener('click', (e) => this.handleAnswer(e));
-            this.answerButtons.appendChild(button);
-        });
+            // Create answer buttons
+            this.currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.textContent = option;
+                button.dataset.answer = index;
+                
+                button.addEventListener('click', (e) => this.handleAnswer(e));
+                this.answerButtons.appendChild(button);
+            });
+        }
         
         // Show timer for rounds that need it
         if (this.currentRound === 1 || this.currentRound === 4) {
@@ -293,7 +399,7 @@ class ChemSquidGame {
         // Clear existing timer
         if (this.timer) {
             clearInterval(this.timer);
-        }
+                }
         
         // Update timer display
         this.updateTimerDisplay();
@@ -343,7 +449,7 @@ class ChemSquidGame {
         
         // Handle honeycomb round differently
         if (this.currentRound === 2) {
-            this.handleHoneycombAnswer(selectedAnswer);
+            this.handleHoneycombAnswer(selectedAnswer, event);
             return;
         }
         
@@ -354,8 +460,15 @@ class ChemSquidGame {
             this.handleWrongAnswer(button);
         }
     }
-    
-    handleHoneycombAnswer(selectedAnswer) {
+
+    handleHoneycombAnswer(selectedAnswer, event = null) {
+        console.log('Honeycomb answer selected:', selectedAnswer, 'Correct:', this.currentQuestion.correct);
+        
+        // Add visual feedback to clicked button
+        if (event && event.target) {
+            event.target.classList.add(selectedAnswer === this.currentQuestion.correct ? 'correct' : 'wrong');
+        }
+        
         if (selectedAnswer === this.currentQuestion.correct) {
             // Increment score
             this.score += 10;
@@ -374,38 +487,75 @@ class ChemSquidGame {
             // Show success and continue
             this.showHoneycombSuccess();
         } else {
-            this.handleWrongAnswer();
+            // Wrong answer - eliminate player
+            if (this.soundEnabled) {
+                this.playWrongSound();
+            }
+            
+            // Show wrong feedback briefly
+            setTimeout(() => {
+                this.eliminatePlayer();
+            }, 1000);
         }
     }
     
     showHoneycombSuccess() {
-        // Hide question content
-        const questionContent = document.querySelector('#honeycomb-question .question-content');
-        questionContent.classList.add('hidden');
+        console.log('Showing honeycomb success for symbol:', this.currentSymbol);
         
         // Show success message
         const successMessage = document.querySelector('#honeycomb-question .success-message');
-        successMessage.classList.remove('hidden');
+        if (successMessage) {
+            successMessage.classList.remove('hidden');
+            console.log('Showed success message');
+        }
         
         // After delay, continue game
         setTimeout(() => {
             // Hide success message and question container
-            successMessage.classList.add('hidden');
-            questionContent.classList.remove('hidden');
+            if (successMessage) {
+                successMessage.classList.add('hidden');
+            }
             document.getElementById('honeycomb-question').classList.add('hidden');
             
-            if (this.availableSymbols.length === 0) {
+            // Disable completed symbol
+            const completedSymbol = document.querySelector(`.honeycomb-symbol[data-symbol="${this.currentSymbol}"]`);
+            if (completedSymbol) {
+                completedSymbol.classList.add('disabled');
+                console.log('Disabled symbol:', this.currentSymbol);
+            }
+            
+            // Check if all symbols are disabled
+            const activeSymbols = document.querySelectorAll('.honeycomb-symbol:not(.disabled)');
+            console.log('Active symbols remaining:', activeSymbols.length);
+            
+            if (activeSymbols.length === 0) {
                 // All symbols completed, move to next round
+                console.log('All symbols completed, moving to next round');
                 this.completeRound();
             } else {
-                // Show remaining symbols
-                document.getElementById('honeycomb-symbols').classList.remove('hidden');
-                
-                // Disable completed symbol
-                const completedSymbol = document.querySelector(`.honeycomb-symbol[data-symbol="${this.currentSymbol}"]`);
-                if (completedSymbol) {
-                    completedSymbol.classList.add('disabled');
+                // Show remaining symbols (excluding the one just completed)
+                const honeycombSymbols = document.getElementById('honeycomb-symbols');
+                if (honeycombSymbols) {
+                    honeycombSymbols.classList.remove('hidden');
+                    console.log('Showed remaining symbols');
                 }
+                
+                // Re-enable click events for remaining symbols
+                const remainingSymbols = document.querySelectorAll('.honeycomb-symbol:not(.disabled)');
+                remainingSymbols.forEach(symbol => {
+                    // Remove any existing event listeners
+                    const newSymbol = symbol.cloneNode(true);
+                    symbol.parentNode.replaceChild(newSymbol, symbol);
+                });
+                
+                // Add new event listeners to fresh elements
+                const freshRemainingSymbols = document.querySelectorAll('.honeycomb-symbol:not(.disabled)');
+                freshRemainingSymbols.forEach(symbol => {
+                    symbol.addEventListener('click', () => {
+                        console.log('Symbol clicked:', symbol.dataset.symbol);
+                        this.handleHoneycombSymbolClick(symbol.dataset.symbol);
+                    });
+                });
             }
         }, 2000);
     }
@@ -424,34 +574,13 @@ class ChemSquidGame {
         
         // Special handling for honeycomb round
         if (this.currentRound === 2) {
-            setTimeout(() => {
-                // Hide question container
-                const honeycombQuestion = document.getElementById('honeycomb-question');
-                honeycombQuestion.classList.add('hidden');
-                
-                // Show honeycomb grid with clicked symbol disabled
-                const honeycombGrid = document.querySelector('.honeycomb-grid');
-                honeycombGrid.classList.remove('hidden');
-                
-                // Disable the last clicked symbol
-                if (this.lastClickedSymbol) {
-                    const clickedSymbol = document.querySelector(`.honeycomb-symbol[data-symbol="${this.lastClickedSymbol}"]`);
-                    if (clickedSymbol) {
-                        clickedSymbol.classList.add('disabled');
-                    }
-                }
-                
-                // Check if all symbols are disabled
-                const activeSymbols = document.querySelectorAll('.honeycomb-symbol:not(.disabled)');
-                if (activeSymbols.length === 0) {
-                    this.completeRound();
-                }
-            }, 1000);
+            // For honeycomb round, use the dedicated success handler
+            this.showHoneycombSuccess();
         } else {
-            // Normal round handling
+            // Normal round handling (including Round 3 glass bridge)
             setTimeout(() => {
                 this.nextQuestion();
-            }, 1000);
+            }, 1500); // Slightly longer delay for glass bridge visual feedback
         }
     }
 
@@ -491,9 +620,10 @@ class ChemSquidGame {
             this.stopBackgroundMusic();
         }
         
-        // Hide honeycomb UI when eliminated
+        // Hide all round-specific UI when eliminated
         document.getElementById('container-ui').classList.add('hidden');
         document.getElementById('honeycomb-question').classList.add('hidden');
+        this.hideGlassBridge();
         
         this.showScreen('elimination');
     }
@@ -519,9 +649,10 @@ class ChemSquidGame {
         this.questionText.textContent = `Round ${this.currentRound}: ${roundNames[this.currentRound]}`;
         this.answerButtons.innerHTML = '';
         
-        // Hide honeycomb UI during transition
+        // Hide all round-specific UI during transition
         document.getElementById('container-ui').classList.add('hidden');
         document.getElementById('honeycomb-question').classList.add('hidden');
+        this.hideGlassBridge();
         
         setTimeout(() => {
             this.startRound();
@@ -536,6 +667,7 @@ class ChemSquidGame {
         // Hide all round-specific UIs
         this.containerUI.classList.add('hidden');
         document.getElementById('honeycomb-question').classList.add('hidden');
+        this.hideGlassBridge();
         
         if (this.soundEnabled) {
             this.stopBackgroundMusic();
@@ -662,9 +794,9 @@ class ChemSquidGame {
             const buttons = this.answerButtons.querySelectorAll('.answer-btn');
             if (buttons[answerIndex]) {
                 buttons[answerIndex].click();
-            }
         }
-        
+    }
+
         // Spacebar for pause
         if (key === ' ') {
             event.preventDefault();

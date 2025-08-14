@@ -353,25 +353,25 @@ const QUESTIONS = {
 const ROUND_CONFIG = {
     round1: {
         name: "Red Light Green Light",
-        timeLimit: 15,
+        timeLimit: 20,
         questionsPerRound: 4,
-        description: "Answer within 15 seconds or you're eliminated!"
+        description: "Answer within 20 seconds or you're eliminated!"
     },
     round2: {
         name: "Sugar Honeycomb",
-        timeLimit: 12,
+        timeLimit: 20,
         questionsPerRound: 4,
         description: "Choose a container and answer the question!"
     },
     round3: {
         name: "Glass Bridge",
-        timeLimit: 10,
+        timeLimit: 20,
         questionsPerRound: 4,
         description: "Choose your path carefully..."
     },
     round4: {
         name: "Final Survival",
-        timeLimit: 8,
+        timeLimit: 20,
         questionsPerRound: 4,
         description: "The hardest chemistry questions await!"
     }
